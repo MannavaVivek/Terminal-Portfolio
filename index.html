@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <script src="terminal.js" defer></script>
+</head>
+<body>
+
+<div class="terminal-window">
+    <header>
+        <div class="button red"></div>
+        <div class="button yellow"></div>
+        <div class="button green"></div>
+    </header>
+    <div id="terminal">
+        <p><span class="green">\[._.]/</span> - you're in   Vivek's cli! type `help` to get started.</p>
+        <p class="hidden">
+            <span class="prompt">
+                <span id="currentPath" class="root">roots/</span> <!-- Updated here -->
+                <span class="tick">❯</span>
+                
+            </span>
+            <span contenteditable="true" class="input" spellcheck="false"></span>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
