@@ -16,6 +16,71 @@ document.addEventListener("DOMContentLoaded", function() {
             newLine.innerHTML = `${prompt} <span class="tick">❯ </span>${command}<br>${output}`;
             terminal.insertBefore(newLine, inputElement.parentNode);
             promptElement.textContent = currentPath;
+            const nextSibling = newLine.nextElementSibling;
+            if (nextSibling) {
+                terminal.removeChild(nextSibling);
+            }
+            createPrompt();
+
+        } else if (event.key === "Tab") {
+            event.preventDefault();
+            const command = inputElement.textContent.trim();
+            const prompt = `<span class="prompt">${currentPath}</span>`;
+
+            const args = command.split(' ');
+            const commandName = args[0];
+            const target = args[1];
+
+            if (!target) {
+                const suggestions = getSuggestions(commandName);
+                let output = '';
+    
+                if (suggestions.length === 1) {
+                    // Auto-complete the command or file name
+                    inputElement.textContent = suggestions[0];
+    
+                    // Move the cursor to the end of the text content
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+    
+                    range.selectNodeContents(inputElement);
+                    range.collapse(false);
+    
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+    
+                } else if (suggestions.length > 1) {
+                    // Show suggestions
+                    output = suggestions.join(' ');
+                    const newLine = document.createElement("p");
+                    newLine.innerHTML = `${prompt} <span class="tick">❯ </span>${commandName}<br>${output}`;
+                    terminal.insertBefore(newLine, inputElement.parentNode);
+                } 
+            } else {
+                const suggestions = getTargetSuggestions(commandName, target);
+
+                if (suggestions.length === 1) {
+
+                    inputElement.textContent = commandName + ' ' + suggestions[0];
+                    
+                    // Move the cursor to the end of the text content
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+
+                    range.selectNodeContents(inputElement);
+                    range.collapse(false);
+
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+
+                } else if (suggestions.length > 1) {
+                    // Show suggestions
+                    output = suggestions.join(' ');
+                    const newLine = document.createElement("p");
+                    newLine.innerHTML = `${prompt} <span class="tick">❯ </span>${commandName} ${target}<br>${output}`;
+                    terminal.insertBefore(newLine, inputElement.parentNode);
+                }
+            }
         }
     });
 
@@ -29,7 +94,6 @@ document.addEventListener("DOMContentLoaded", function() {
         'python.txt': 'Contents of python.txt file',
         'hobbies.txt': 'Contents of hobbies.txt file',
         'skills.txt': 'Contents of skills.txt file'
-        // Add more files and their contents as needed
     };
 
     let rootDirectory = {
@@ -59,6 +123,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     promptElement.textContent = currentPath;
 
+    function createPrompt() {
+        newLine = document.createElement("p");
+        prompt = `<span class="prompt">${currentPath}</span>`;
+        newLine.innerHTML = `${prompt} <span class="tick">❯ </span><span contenteditable="true" class="input" spellcheck="false"></span>`;
+        terminal.appendChild(newLine); // Add a new empty line with the current prompt
+        // focus curson on the input element
+        inputElement = terminal.querySelector('.input');
+        promptElement.textContent = currentPath;
+        inputElement.focus();
+    }
     
     function processCommand(command) {
         const args = command.split(' ');    
@@ -109,17 +183,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 return '';
             }
         } else if (commandName === 'clear') {
-            terminal.innerHTML = ''; // Clear terminal window
-            
-            const newLine = document.createElement("p");
-            newLine.innerHTML = `<span class="prompt">${currentPath}</span>
-                                <span class="tick">❯</span>
-                                <span contenteditable="true" class="input" spellcheck="false"></span>`;
-            terminal.appendChild(newLine);
-            const newInput = terminal.querySelector('.input');
-            newInput.focus(); // Focus on the new input field
-            return '';
-        } else if (commandName === 'cat') {
+            terminal.innerHTML = ''; // Clear the terminal screen
+            createPrompt();
+            return ''; // Return an empty string as output
+        }
+        
+        else if (commandName === 'cat') {
             if (!target) {
                 return `cat: missing operand`;
             } else {
@@ -148,7 +217,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     return `cat: ${target}: No such file or directory`;
                 }
             }
-        } else if (commandName === 'help') {
+        } else if (commandName === 'tree') {
+            return displayTree(rootDirectory, 0, '');
+        }else if (commandName === 'help') {
             return 'Help is for the weak!'
         } else if (commandName === 'pwd') {
             return currentPath;
@@ -223,12 +294,107 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
-    
     function getParentDirectory(directory, pathParts) {
         let parent = directory;
         for (let i = 0; i < pathParts.length - 1; i++) {
             parent = parent.folders.find(folder => folder.name === pathParts[i]);
         }
         return parent;
+    }
+
+    function getSuggestions(commandName) {
+        availableCommands = ['ls', 'cd', 'cat', 'clear', 'help', 'pwd', 'tree'];
+            
+        if (availableCommands.includes(commandName)) {
+            if (commandName === 'ls' || commandName === 'cd') {
+                const folders = currentDirectory.folders.map(folder => `<span class="green">${folder.name}/</span>`);
+                return folders;
+            }
+            else if (commandName === 'cat') {
+                const folders = currentDirectory.folders.map(folder => `<span class="green">${folder.name}/</span>`);
+                const allFilesAndFolders = [...currentDirectory.files, ...folders];
+                return allFilesAndFolders;
+            }
+        } else {
+            return availableCommands.filter(command => command.startsWith(commandName));
+        }
+
+    }
+
+    function getTargetSuggestions(commandName, target) {
+        if (commandName === 'ls' || commandName === 'cd') {
+            targetPath = target.split('/');
+            if (targetPath.length === 1) {
+                const folders = currentDirectory.folders.map(folder => folder.name + '/');
+                return folders.filter(item => item.startsWith(target));
+            } else {
+                const requiredTarget = targetPath.pop();
+
+                const targetDir = navigateTo(targetPath[0]);
+                if (targetDir === null) {
+                    return [];
+                }
+                const folders = targetDir.folders.map(folder => `<span class="green">${folder.name}/</span>`);
+                return folders.filter(item => item.startsWith(requiredTarget));
+            }
+        } else if (commandName === 'cat') {
+            if (target.endsWith('/')) {
+                // Navigate directly to the directory and list its contents if it ends with '/' but is a single word
+                const dir = navigateTo(target.slice(0, -1)); // Remove the trailing '/'
+                if (dir === null) {
+                    return [];
+                }
+                const folders = dir.folders.map(folder => folder.name + '/');
+                const files = dir.files;
+                return [...folders, ...files];
+            } else {
+                targetPath = target.split('/');
+            }
+            
+            if (targetPath.length === 1) {
+                const folders = currentDirectory.folders.map(folder => folder.name + '/');
+                const files = currentDirectory.files;
+                const allFilesAndFolders = [...folders, ...files];
+                return allFilesAndFolders.filter(item => item.startsWith(target));
+            } else {
+                // return targetPath;
+                const requiredTarget = targetPath.pop();
+
+                const targetDir = navigateTo(targetPath[0]);
+                if (targetDir === null) {
+                    return [];
+                }
+                const folders = targetDir.folders.map(folder => folder);
+                const files = targetDir.files.map(file => file);
+                const allFilesAndFolders = [...folders, ...files];
+                // return allFilesAndFolders;
+                return [targetPath[0]+'/'+allFilesAndFolders.filter(item => item.startsWith(requiredTarget))];
+            }
+        }
+    }
+
+    function displayTree(directory, depth, output) {
+        const indentation = '    '.repeat(depth); // Define the indentation for each level
+    
+        // Display the root directory
+        if (depth === 0) {
+            output += `<span class="green">root/</span><br>`;
+        }
+        directory.files.forEach(file => {
+            output += `${indentation}<span class="white" style="margin-left: 20px;">${file}</span><br>`;
+        });
+    
+        // Display folders and their contents
+        directory.folders.forEach((folder) => {
+            output += `${indentation}<span class="green">${folder.name}/</span><br>`;
+    
+            // Recursively display contents of subfolders with appropriate indentation
+            output = displayTree(folder, depth + 1, output);
+        });
+    
+        // Display files at this level
+        
+    
+        return output;
     }
 });
