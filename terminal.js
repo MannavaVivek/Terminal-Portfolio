@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const pathParts = currentPath.split('/').filter(part => part !== '');
                     if (pathParts.length > 1) {
                         pathParts.pop();
-                        currentPath = `/${pathParts.join('/')}/`;
+                        currentPath = `${pathParts.join('/')}/`;
                         currentDirectory = getParentDirectory(rootDirectory, pathParts);
                     } else {
                         currentPath = currentDirectory === rootDirectory ? 'root/' : `${currentPath}${target}/`;
@@ -185,13 +185,34 @@ document.addEventListener("DOMContentLoaded", function() {
             const pathParts = currentPath.split('/').filter(part => part !== '');
             if (pathParts.length > 1) {
                 pathParts.pop();
-                const newPath = `/${pathParts.join('/')}/`;
-                currentPath = newPath;
-                currentDirectory = getParentDirectory(rootDirectory, pathParts);
-                return currentDirectory;
+                const newPath = `${pathParts.join('/')}/`;
+                return getParentDirectory(rootDirectory, pathParts);
             } else {
                 return 0; // Already at root
             }
+        } else if (target.includes('/')) {
+            const targetPath = target.split('/');
+            let fileDir = currentDirectory;
+            for (const dir of targetPath) {
+                if (dir === '..') {
+                    const pathParts = currentPath.split('/').filter(part => part !== '');
+                    if (pathParts.length > 1) {
+                        pathParts.pop();
+                        const newPath = `${pathParts.join('/')}/`;
+                        fileDir = getParentDirectory(rootDirectory, pathParts);
+                    } else {
+                        return null; // Already at root
+                    }
+                } else {
+                    const foundDir = fileDir.folders.find(folder => folder.name === dir);
+                    if (foundDir) {
+                        fileDir = foundDir;
+                    } else {
+                        return null; // Directory not found
+                    }
+                }
+            }
+            return fileDir;
         } else {
             const folder = currentDirectory.folders.find(folder => folder.name === target);
             if (folder) {
@@ -201,6 +222,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
+    
     
     function getParentDirectory(directory, pathParts) {
         let parent = directory;
