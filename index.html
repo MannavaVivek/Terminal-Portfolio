@@ -11,15 +11,16 @@
 <div class="terminal-window">
     <header>
         <div class="button red"></div>
-        <div class="button yellow"></div>
-        <div class="button green"></div>
+        <div class="button yellow" onclick="minimizeTerminal()"></div>
+        <div class="button green" onclick="toggleFullscreen()"></div>
+
     </header>
     <div id="terminal">
-        <p><span class="green">\[._.]/</span> - you're in   Vivek's cli! type `help` to get started.</p>
+        <p><span class="purple">[ツ]</span> - Welcome to personal CLI. Type help to get started.</p>
         <p class="hidden">
             <span class="prompt">
-                <span id="currentPath" class="root">roots/</span> <!-- Updated here -->
-                <span class="tick">❯</span>
+                <span id="currentPath" class="root">root/</span> <!-- Updated here -->
+                <span class="tick">&gt;</span>
                 
             </span>
             <span contenteditable="true" class="input" spellcheck="false"></span>

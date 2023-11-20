@@ -1,6 +1,22 @@
 document.addEventListener("DOMContentLoaded", function() {
     const terminal = document.getElementById("terminal");
     const promptElement = document.getElementById('currentPath');
+    const terminalWindow = document.querySelector('.terminal-window');
+    document.querySelector('.button.green').addEventListener('click', function () {
+        if (terminalWindow.classList.contains('minimized')) {
+            terminalWindow.classList.remove('minimized');
+        } else {
+            terminalWindow.classList.toggle('fullscreen');
+        }
+      });
+    
+    document.querySelector('.button.yellow').addEventListener('click', function () {
+        if (terminalWindow.classList.contains('fullscreen')) {
+            terminalWindow.classList.remove('fullscreen');
+        } else {
+            terminalWindow.classList.toggle('minimized');
+        }
+    });
 
     terminal.addEventListener("keydown", function(event) {
         const inputElement = terminal.querySelector('.input');
@@ -13,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const newLine = document.createElement("p");
             
-            newLine.innerHTML = `${prompt} <span class="tick">❯ </span>${command}<br>${output}`;
+            newLine.innerHTML = `${prompt} <span class="tick">&gt; </span>${command}<br>${output}`;
             terminal.insertBefore(newLine, inputElement.parentNode);
             promptElement.textContent = currentPath;
             const nextSibling = newLine.nextElementSibling;
@@ -53,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     // Show suggestions
                     output = suggestions.join(' ');
                     const newLine = document.createElement("p");
-                    newLine.innerHTML = `${prompt} <span class="tick">❯ </span>${commandName}<br>${output}`;
+                    newLine.innerHTML = `${prompt} <span class="tick">&gt; </span>${commandName}<br>${output}`;
                     terminal.insertBefore(newLine, inputElement.parentNode);
                 } 
             } else {
@@ -77,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     // Show suggestions
                     output = suggestions.join(' ');
                     const newLine = document.createElement("p");
-                    newLine.innerHTML = `${prompt} <span class="tick">❯ </span>${commandName} ${target}<br>${output}`;
+                    newLine.innerHTML = `${prompt} <span class="tick">&gt; </span>${commandName} ${target}<br>${output}`;
                     terminal.insertBefore(newLine, inputElement.parentNode);
                 }
             }
@@ -126,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function createPrompt() {
         newLine = document.createElement("p");
         prompt = `<span class="prompt">${currentPath}</span>`;
-        newLine.innerHTML = `${prompt} <span class="tick">❯ </span><span contenteditable="true" class="input" spellcheck="false"></span>`;
+        newLine.innerHTML = `${prompt} <span class="tick">&gt; </span><span contenteditable="true" class="input" spellcheck="false"></span>`;
         terminal.appendChild(newLine); // Add a new empty line with the current prompt
         // focus curson on the input element
         inputElement = terminal.querySelector('.input');

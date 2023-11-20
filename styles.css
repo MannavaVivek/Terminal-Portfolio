@@ -1,13 +1,12 @@
 body {
-  background-color: #211E3A;
+  background-color: #281e3f;
   font-family: Menlo, Monaco, "Consolas", "Courier New", "Courier";
 }
 
-/* .terminal-window { ... } */
 .terminal-window {
   text-align: left;
-  width: 600px;
-  height: 360px;
+  width: 800px; 
+  height: 480px; 
   border-radius: 10px;
   margin: auto;
   position: relative;
@@ -24,13 +23,12 @@ body {
 }
 
 .terminal-window.fullscreen {
-  width: 100%;
-  height: 100%;
+  width: 95vw;
+  height: 95vh;
   top: 0;
   left: 0;
 }
 
-/* .terminal-window header { ... } */
 .terminal-window header {
   background: #e0e8f0;
   height: 30px;
@@ -38,7 +36,6 @@ body {
   padding-left: 10px;
 }
 
-/* .terminal-window header .button { ... } */
 .terminal-window header .button {
   width: 12px;
   height: 12px;
@@ -59,6 +56,7 @@ body {
 
 .terminal-window header .button.red {
   background: #e75448;
+  cursor: pointer;
 }
 
 .input {
@@ -68,10 +66,8 @@ body {
   border: none;
   margin: 0;
   padding: 0;
-  min-width: 10px; /* Set a minimum width for better visibility */
-  /* Additional styling for the input */
+  min-width: 10px; 
 }
-
 
 .input:empty::before {
   content: "\200B"; /* Zero-width space */
@@ -85,7 +81,17 @@ body {
   color: #ffffff; /* White color */
 }
 
+.purple {
+  color: #ff00ff; /* Purple color */
+}
 
+.prompt {
+  color: #00ccff; /* Neon blue color */
+}
+
+.tick {
+  color: #00ccff; 
+}
 
 #terminal {
   color: white;
@@ -96,30 +102,17 @@ body {
   box-sizing: border-box;
   position: absolute;
   width: 100%;
+  height: 100%;
   top: 30px;
   bottom: 0;
   overflow-y: scroll;
   overflow: hidden; /* Hide the scrollbar */
-  
-
 }
-
-
-#terminal span.input:focus-visible {
-  outline: none;
-  margin: 0;
-}
-
-
 
 @media only screen and (max-width: 650px){
   .terminal-window {
     width: 95%;
-    height: 60vh;
+    height: 80vh; 
     top: 10vh;
-  }
-
-  .footer {
-    bottom: 20px;
   }
 }
