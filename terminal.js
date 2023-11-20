@@ -19,6 +19,19 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    const fileContents = {
+        'masters.txt': 'Contents of masters.txt file',
+        'bachelors.txt': 'Contents of bachelors.txt file',
+        'diploma.txt': 'Contents of diploma.txt file',
+        'ledlenser.txt': 'Contents of ledlenser.txt file',
+        'cognizant.txt': 'Contents of cognizant.txt file',
+        'rasa.txt': 'Contents of rasa.txt file',
+        'python.txt': 'Contents of python.txt file',
+        'hobbies.txt': 'Contents of hobbies.txt file',
+        'skills.txt': 'Contents of skills.txt file'
+        // Add more files and their contents as needed
+    };
+
     let rootDirectory = {
         name: 'root',
         folders: [
@@ -50,7 +63,11 @@ document.addEventListener("DOMContentLoaded", function() {
     function processCommand(command) {
         const args = command.split(' ');    
         const commandName = args[0];
-        const target = args[1];
+        target = args[1];
+
+        if (target && target.endsWith('/')) {
+            target = target.slice(0, -1); // Remove the last character if it is a slash
+        }
     
         if (commandName === 'ls') {
             if (!target || target === '.' || target === './' || target === currentPath || target === '-a') {
@@ -91,8 +108,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 return '';
             }
-        } else if (commandName === 'pwd') {
-            return currentDirectory.folders.map(folder => folder.name).join(', ');
         } else if (commandName === 'clear') {
             terminal.innerHTML = ''; // Clear terminal window
             
@@ -104,8 +119,46 @@ document.addEventListener("DOMContentLoaded", function() {
             const newInput = terminal.querySelector('.input');
             newInput.focus(); // Focus on the new input field
             return '';
+        } else if (commandName === 'cat') {
+            if (!target) {
+                return `cat: missing operand`;
+            } else {
+                const targetPath = target.split('/');
+                const fileName = targetPath.pop(); // Get the file name
+    
+                let fileDir = currentDirectory;
+                // Traverse the directory path to reach the file's directory
+                for (const dir of targetPath) {
+                    const foundDir = navigateTo(dir);
+                    if (foundDir === null) {
+                        return `cat: ${dir}: No such file or directory`;
+                    } else {
+                        fileDir = foundDir;
+                    }
+                }
+                const file = fileDir.files.find(file => file === fileName);
+                if (file) {
+                    const content = fileContents[file];
+                    if (content) {
+                        return content;
+                    } else {
+                        return `cat: ${target}: No such file or directory`;
+                    }
+                } else {
+                    return `cat: ${target}: No such file or directory`;
+                }
+            }
         } else if (commandName === 'help') {
             return 'Help is for the weak!'
+        } else if (commandName === 'pwd') {
+            return currentPath;
+        } else if (commandName === 'rm' || commandName === 'rmdir' || commandName === 'mkdir' || 
+                    commandName === 'touch' || commandName === 'mv' || commandName === 'cp' || commandName === 'apt') {
+            return `Permission denied`;
+        } else if (commandName === 'sudo' || commandName === 'su') {
+            return `What...just cuz it says root?`;
+        } else if (commandName === 'whoami') {
+            return `Guest`;
         } else {
             return `Command not recognized: ${command}`;
         }
