@@ -106,8 +106,23 @@ body {
   top: 30px;
   bottom: 0;
   overflow-y: scroll;
-  overflow: hidden; /* Hide the scrollbar */
 }
+
+#terminal p {
+  font-size: 20px; /* Set the desired font size */
+}
+
+/* Hide scrollbar for #terminal */
+#terminal::-webkit-scrollbar {
+  display: none; /* For WebKit browsers */
+}
+
+#terminal {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer */
+  overflow-y: scroll; /* Enable vertical scrolling */
+}
+
 
 @media only screen and (max-width: 650px){
   .terminal-window {
