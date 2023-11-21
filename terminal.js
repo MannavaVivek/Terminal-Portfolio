@@ -43,20 +43,23 @@ document.addEventListener("DOMContentLoaded", function() {
         if (event.key === "Enter") {
             event.preventDefault();
             const command = inputElement.textContent.trim();
-            inputElement.textContent = ''; // Clear the input field
-            const prompt = `<span class="prompt">${currentPath}</span>`;
-            const output = processCommand(command)// Process the command
+            if (command !== '') {
+                inputElement.textContent = ''; // Clear the input field
+                const prompt = `<span class="prompt">${currentPath}</span>`;
+                const output = processCommand(command)// Process the command
 
-            const newLine = document.createElement("p");
-            
-            newLine.innerHTML = `${prompt} <span class="tick">&gt; </span>${command}<br>${output}`;
-            terminal.insertBefore(newLine, inputElement.parentNode);
-            promptElement.textContent = currentPath;
-            const nextSibling = newLine.nextElementSibling;
-            if (nextSibling) {
-                terminal.removeChild(nextSibling);
-            }
-            createPrompt();
+                const newLine = document.createElement("p");
+                
+                newLine.innerHTML = `${prompt} <span class="tick">&gt; </span>${command}<br>${output}`;
+                terminal.insertBefore(newLine, inputElement.parentNode);
+                promptElement.textContent = currentPath;
+                const nextSibling = newLine.nextElementSibling;
+                if (nextSibling) {
+                    terminal.removeChild(nextSibling);
+                }
+                createPrompt();
+            } 
+
 
         } else if (event.key === "Tab") {
             event.preventDefault();
@@ -95,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 const suggestions = getTargetSuggestions(commandName, target);
 
-                if (suggestions.length === 1) {
+                if (suggestions && suggestions.length === 1) {
 
                     inputElement.textContent = commandName + ' ' + suggestions[0];
                     
@@ -109,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     selection.removeAllRanges();
                     selection.addRange(range);
 
-                } else if (suggestions.length > 1) {
+                } else if (suggestions && suggestions.length > 1) {
                     // Show suggestions
                     output = suggestions.join(' ');
                     const newLine = document.createElement("p");
@@ -219,8 +222,23 @@ document.addEventListener("DOMContentLoaded", function() {
                         currentDirectory = targetDir;
                     }
                 } else {
-                    currentPath += `${target}/`;
+                    console.log(currentPath);
+                    const targetParts = target.split('/'); // Split the target path by '/'
+                    for (const part of targetParts) {
+                        if (part === '..') {
+                            // Remove the last part of the currentPath
+                            const pathParts = currentPath.split('/').filter(Boolean); // Remove empty strings
+                            if (pathParts.length > 1) {
+                                pathParts.pop();
+                            }
+                            currentPath = pathParts.join('/') + '/'; // Reconstruct the currentPath
+                        } else {
+                            currentPath += `${part}/`; // Append the current part to the currentPath
+                        }
+                    }
+                    console.log(currentPath);
                     currentDirectory = targetDir;
+                    
                 }
                 return '';
             }
@@ -294,8 +312,7 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         xhr.open('GET', filePath, false); // Synchronous AJAX call to load the HTML file
         xhr.send();
-    }
-      
+    } 
     
     function listContents(directory) {
         const folders = directory.folders.map(folder => folder.name);
@@ -356,6 +373,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
+    
     function getParentDirectory(directory, pathParts) {
         let parent = directory;
         for (let i = 0; i < pathParts.length - 1; i++) {
@@ -387,17 +405,33 @@ document.addEventListener("DOMContentLoaded", function() {
         if (commandName === 'ls' || commandName === 'cd') {
             targetPath = target.split('/');
             if (targetPath.length === 1) {
-                const folders = currentDirectory.folders.map(folder => folder.name + '/');
-                return folders.filter(item => item.startsWith(target));
+                let folders;
+                if (targetPath[0] === '..') {
+                    folders = rootDirectory.folders.map(folder => folder.name);
+                }
+                else {
+                    folders = currentDirectory.folders.map(folder => folder.name).filter(item => item.startsWith(target));
+                }
+                if (folders.length > 1) {
+                    return folders.map(folder => `<span class="green">${folder}/</span>`);
+                }
+                else if (folders.length === 1) {
+                    return [folders[0]+'/'];
+                }
             } else {
                 const requiredTarget = targetPath.pop();
-
-                const targetDir = navigateTo(targetPath[0]);
+                targetPath = targetPath.join('/');
+                const targetDir = navigateTo(targetPath);
                 if (targetDir === null) {
                     return [];
                 }
-                const folders = targetDir.folders.map(folder => `<span class="green">${folder.name}/</span>`);
-                return folders.filter(item => item.startsWith(requiredTarget));
+                const folders = targetDir.folders.map(folder => folder.name).filter(item => item.startsWith(requiredTarget));
+                if (folders.length > 1) {
+                    return folders.map(folder => `<span class="green">${folder}/</span>`);
+                }
+                else if (folders.length === 1) {
+                    return [targetPath + '/' + folders[0]+ '/'];
+                }
             }
         } else if (commandName === 'cat') {
             if (target.endsWith('/')) {
@@ -421,16 +455,22 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 // return targetPath;
                 const requiredTarget = targetPath.pop();
-
-                const targetDir = navigateTo(targetPath[0]);
+                targetPath = targetPath.join('/');
+                const targetDir = navigateTo(targetPath);
                 if (targetDir === null) {
                     return [];
                 }
-                const folders = targetDir.folders.map(folder => folder);
+                const folders = targetDir.folders.map(folder => folder.name + '/');
                 const files = targetDir.files.map(file => file);
                 const allFilesAndFolders = [...folders, ...files];
-                // return allFilesAndFolders;
-                return [targetPath[0]+'/'+allFilesAndFolders.filter(item => item.startsWith(requiredTarget))];
+                const filteredItems = allFilesAndFolders.filter(item => item.startsWith(requiredTarget));
+                if (filteredItems.length > 1) {
+                    return filteredItems;
+                } else {
+                    return [targetPath + '/' + filteredItems[0]]; // Assuming you want to return a single item within an array
+                }
+                
+                
             }
         }
     }
