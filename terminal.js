@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const command = inputElement.textContent.trim();
             inputElement.textContent = ''; // Clear the input field
             const prompt = `<span class="prompt">${currentPath}</span>`;
-            const output = processCommand(command); // Process the command
+            const output = processCommand(command)// Process the command
 
             const newLine = document.createElement("p");
             
@@ -121,20 +121,20 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     const fileContents = {
-        'masters.txt': '<span class="green">ls</span> - list directory contents<br>',
-        'bachelors.txt': 'Contents of bachelors.txt file',
-        'diploma.txt': 'Contents of diploma.txt file',
-        'ledlenser.txt': 'Contents of ledlenser.txt file',
-        'cognizant.txt': 'Contents of cognizant.txt file',
-        'rasa.txt': 'Contents of rasa.txt file',
-        'python.txt': 'Contents of python.txt file',
-        'robotics.txt': 'Contents of robotics.txt file',
-        'arbitrary.txt': 'Contents of arbitrary.txt file',
-        'Robocup_world_champions.txt': 'Contents of Robocup.txt file',
-        'ERL_smart_city_champions.txt': 'Contents of ERL_smart_city_champions.txt file',
-        'resume.txt': 'Contents of resume.txt file',
-        'contact.txt': 'Contents of contact.txt file',
-        'about.txt': 'Contents of about.txt file',
+        'masters.txt': '',
+        'bachelors.txt': '',
+        'diploma.txt': '',
+        'ledlenser.txt': '',
+        'cognizant.txt': '',
+        'safe_nlp.txt': '',
+        'autonomous_planner.txt': '',
+        'multi_robot_manager.txt': '',
+        'sign_language_translator.txt': '',
+        'resume.txt': '',
+        'contact.txt': '',
+        'about.txt': '',
+        'skills.txt': '',
+        'achievements.txt': '',
     };
 
     let rootDirectory = {
@@ -152,21 +152,11 @@ document.addEventListener("DOMContentLoaded", function() {
             },
             {
                 name: 'projects',
-                files: ['rasa.txt', 'python.txt'],
-                folders: [],
-            },
-            {
-                name: 'skills',
-                files: ['robotics.txt', 'arbitrary.txt'],
-                folders: [],
-            },
-            {
-                name: 'achievements',
-                files: ['Robocup_world_champions.txt', 'ERL_smart_city_champions.txt'],
+                files: ['safe_nlp.txt', 'autonomous_planner.txt', 'multi_robot_manager.txt', 'sign_language_translator.txt'],
                 folders: [],
             },
         ],
-        files: ['resume.txt', 'contact.txt', 'about.txt'],
+        files: ['resume.txt', 'contact.txt', 'about.txt', 'skills.txt', 'achievements.txt'],
     };
     
     let currentDirectory = rootDirectory;
@@ -238,38 +228,36 @@ document.addEventListener("DOMContentLoaded", function() {
             terminal.innerHTML = ''; // Clear the terminal screen
             createPrompt();
             return ''; // Return an empty string as output
-        }
-        
-        else if (commandName === 'cat') {
+        } else if (commandName === 'cat') {
             if (!target) {
-                return `cat: missing operand`;
+              return `cat: missing operand`;
             } else {
-                const targetPath = target.split('/');
-                const fileName = targetPath.pop(); // Get the file name
-    
-                let fileDir = currentDirectory;
-                // Traverse the directory path to reach the file's directory
-                for (const dir of targetPath) {
-                    const foundDir = navigateTo(dir);
-                    if (foundDir === null) {
-                        return `cat: ${dir}: No such file or directory`;
-                    } else {
-                        fileDir = foundDir;
-                    }
-                }
-                const file = fileDir.files.find(file => file === fileName);
-                if (file) {
-                    const content = fileContents[file];
-                    if (content) {
-                        return content;
-                    } else {
-                        return `cat: ${target}: No such file or directory`;
-                    }
+              const targetPath = target.split('/');
+              const fileName = targetPath.pop(); // Get the file name
+        
+              let fileDir = currentDirectory;
+        
+              // Traverse the directory path to reach the file's directory
+              for (const dir of targetPath) {
+                const foundDir = navigateTo(dir);
+                if (foundDir === null) {
+                  return `cat: ${dir}: No such file or directory`;
                 } else {
-                    return `cat: ${target}: No such file or directory`;
+                  fileDir = foundDir;
                 }
+              }
+              // replace .txt with .html
+              let actualFileName = fileName.replace('.txt', '.html');
+              const file = fileDir.files.find(file => file === fileName);
+              if (file) {
+                const filePath = `content/${actualFileName}`; // Path to the HTML content
+                loadHTMLFile(filePath, fileName);
+                return fileContents[fileName]; // Return the loaded content
+              } else {
+                return `cat: ${target}: No such file or directory`;
+              }
             }
-        } else if (commandName === 'tree') {
+          } else if (commandName === 'tree') {
             return displayTree(rootDirectory, 0, '');
         }else if (commandName === 'help') {
             output =   `<span class="green">ls</span> - list directory contents<br>
@@ -293,6 +281,21 @@ document.addEventListener("DOMContentLoaded", function() {
             return `Command not recognized: ${command}`;
         }
     }
+
+    // Function to load HTML content using AJAX (XMLHttpRequest)
+    function loadHTMLFile(filePath, fileName) {
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200 || xhr.status === 0) {
+              fileContents[fileName] = xhr.responseText; // Store content in the object
+            }
+          }
+        };
+        xhr.open('GET', filePath, false); // Synchronous AJAX call to load the HTML file
+        xhr.send();
+    }
+      
     
     function listContents(directory) {
         const folders = directory.folders.map(folder => folder.name);

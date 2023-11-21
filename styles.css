@@ -135,8 +135,6 @@ body {
   display: block;
 }
 
-
-
 .terminal-icon.show {
   display: block; /* Show the icon when needed */
 }
@@ -155,6 +153,27 @@ body {
   -ms-overflow-style: none; /* For Internet Explorer */
   overflow-y: scroll; /* Enable vertical scrolling */
 }
+
+/* Add this style for the link */
+a.external-link {
+  color: #FF8080; /* Green color */
+  text-decoration: none; /* Remove default underline */
+}
+
+a.external-link:visited {
+  color: #FF8080; /* Keep the same color after being visited */
+}
+
+a.external-link:hover {
+  color: #FF8080; /* Change color on hover for better visibility */
+}
+
+.Contact a i {
+  font-size: 32px; /* Change the size as needed */
+  color: white; /* Set the color to white */
+  text-decoration: none;
+}
+
 
 
 @media only screen and (max-width: 650px){
