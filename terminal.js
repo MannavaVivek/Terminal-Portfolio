@@ -222,7 +222,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         currentDirectory = targetDir;
                     }
                 } else {
-                    console.log(currentPath);
                     const targetParts = target.split('/'); // Split the target path by '/'
                     for (const part of targetParts) {
                         if (part === '..') {
@@ -236,7 +235,6 @@ document.addEventListener("DOMContentLoaded", function() {
                             currentPath += `${part}/`; // Append the current part to the currentPath
                         }
                     }
-                    console.log(currentPath);
                     currentDirectory = targetDir;
                     
                 }
@@ -250,20 +248,21 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!target) {
               return `cat: missing operand`;
             } else {
-              const targetPath = target.split('/');
-              const fileName = targetPath.pop(); // Get the file name
-        
-              let fileDir = currentDirectory;
-        
-              // Traverse the directory path to reach the file's directory
-              for (const dir of targetPath) {
-                const foundDir = navigateTo(dir);
+                const targetPath = target.split('/');
+                const fileName = targetPath.pop(); // Get the file name
+                
+                let fileDir = currentDirectory;
+                
+                // Construct the directory path without the file name
+                const directoryPath = targetPath.join('/') + '/';
+                // Traverse the directory path to reach the file's directory
+                const foundDir = navigateTo(directoryPath);
+                
                 if (foundDir === null) {
-                  return `cat: ${dir}: No such file or directory`;
+                    return `cat: ${directoryPath}: No such file or directory`;
                 } else {
-                  fileDir = foundDir;
+                    fileDir = foundDir;
                 }
-              }
               // replace .txt with .html
               let actualFileName = fileName.replace('.txt', '.html');
               const file = fileDir.files.find(file => file === fileName);
@@ -348,12 +347,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     const pathParts = currentPath.split('/').filter(part => part !== '');
                     if (pathParts.length > 1) {
                         pathParts.pop();
-                        const newPath = `${pathParts.join('/')}/`;
                         fileDir = getParentDirectory(rootDirectory, pathParts);
                     } else {
                         return null; // Already at root
                     }
-                } else {
+                } else if (dir !== '') {
                     const foundDir = fileDir.folders.find(folder => folder.name === dir);
                     if (foundDir) {
                         fileDir = foundDir;
