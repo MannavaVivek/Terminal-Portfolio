@@ -2,13 +2,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const terminal = document.getElementById("terminal");
     const promptElement = document.getElementById('currentPath');
     const terminalWindow = document.querySelector('.terminal-window');
+    const terminalIcon = document.querySelector('.terminal-icon');
+
     document.querySelector('.button.green').addEventListener('click', function () {
         if (terminalWindow.classList.contains('minimized')) {
             terminalWindow.classList.remove('minimized');
         } else {
             terminalWindow.classList.toggle('fullscreen');
         }
-      });
+    });
     
     document.querySelector('.button.yellow').addEventListener('click', function () {
         if (terminalWindow.classList.contains('fullscreen')) {
@@ -16,6 +18,24 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             terminalWindow.classList.toggle('minimized');
         }
+    });
+
+    document.querySelector('.button.red').addEventListener('click', function () {
+        terminalWindow.classList.remove('fullscreen', 'minimized');
+        terminalWindow.style.display = 'none';
+        terminalIcon.classList.add('show');
+        
+    });
+
+    document.querySelector('.terminal-icon').addEventListener('click', function () {
+        terminalWindow.style.display = 'block';
+        terminalIcon.classList.remove('show');
+        openTerminal();
+    });
+
+    terminal.addEventListener('click', function() {
+        const inputElement = terminal.querySelector('.input');
+        inputElement.focus();
     });
 
     terminal.addEventListener("keydown", function(event) {
@@ -101,15 +121,20 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     const fileContents = {
-        'masters.txt': 'Contents of masters.txt file',
+        'masters.txt': '<span class="green">ls</span> - list directory contents<br>',
         'bachelors.txt': 'Contents of bachelors.txt file',
         'diploma.txt': 'Contents of diploma.txt file',
         'ledlenser.txt': 'Contents of ledlenser.txt file',
         'cognizant.txt': 'Contents of cognizant.txt file',
         'rasa.txt': 'Contents of rasa.txt file',
         'python.txt': 'Contents of python.txt file',
-        'hobbies.txt': 'Contents of hobbies.txt file',
-        'skills.txt': 'Contents of skills.txt file'
+        'robotics.txt': 'Contents of robotics.txt file',
+        'arbitrary.txt': 'Contents of arbitrary.txt file',
+        'Robocup_world_champions.txt': 'Contents of Robocup.txt file',
+        'ERL_smart_city_champions.txt': 'Contents of ERL_smart_city_champions.txt file',
+        'resume.txt': 'Contents of resume.txt file',
+        'contact.txt': 'Contents of contact.txt file',
+        'about.txt': 'Contents of about.txt file',
     };
 
     let rootDirectory = {
@@ -118,26 +143,37 @@ document.addEventListener("DOMContentLoaded", function() {
             {
                 name: 'education',
                 files: ['masters.txt', 'bachelors.txt', 'diploma.txt'],
-                folders: []
+                folders: [],
             },
             {
                 name: 'experience',
                 files: ['ledlenser.txt', 'cognizant.txt'],
-                folders: []
+                folders: [],
             },
             {
                 name: 'projects',
                 files: ['rasa.txt', 'python.txt'],
-                folders: []
-            }
+                folders: [],
+            },
+            {
+                name: 'skills',
+                files: ['robotics.txt', 'arbitrary.txt'],
+                folders: [],
+            },
+            {
+                name: 'achievements',
+                files: ['Robocup_world_champions.txt', 'ERL_smart_city_champions.txt'],
+                folders: [],
+            },
         ],
-        files: ['hobbies.txt', 'skills.txt']
+        files: ['resume.txt', 'contact.txt', 'about.txt'],
     };
     
     let currentDirectory = rootDirectory;
     let currentPath = 'root/';
 
     promptElement.textContent = currentPath;
+    terminal.querySelector('.input').focus();
 
     function createPrompt() {
         newLine = document.createElement("p");
@@ -236,7 +272,14 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (commandName === 'tree') {
             return displayTree(rootDirectory, 0, '');
         }else if (commandName === 'help') {
-            return 'Help is for the weak!'
+            output =   `<span class="green">ls</span> - list directory contents<br>
+                        <span class="green">cd</span> - change the working directory<br>
+                        <span class="green">cat</span> - concatenate files and print on the standard output<br>
+                        <span class="green">clear</span> - clear the terminal screen<br>
+                        <span class="green">help</span> - display help info<br>
+                        <span class="green">pwd</span> - print name of current/working directory<br>
+                        <span class="green">tree</span> - list contents of directories<br>`;
+            return output;
         } else if (commandName === 'pwd') {
             return currentPath;
         } else if (commandName === 'rm' || commandName === 'rmdir' || commandName === 'mkdir' || 
@@ -258,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function() {
         files.sort();
         let output = '';
         folders.forEach(folder => {
-            output += `<span class="green">${folder}</span> `;
+            output += `<span class="green">${folder}/</span> `;
         });
         files.forEach(file => {
             output += `<span class="white">${file}</span> `;

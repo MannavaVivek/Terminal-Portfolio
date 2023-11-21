@@ -108,6 +108,39 @@ body {
   overflow-y: scroll;
 }
 
+/* Styles for the terminal icon */
+/* Styles for the terminal icon */
+.terminal-icon {
+  width: 80px;
+  height: 60px;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  cursor: pointer;
+  display: none; /* Initially hide the icon */
+  border: 5px solid #fff;
+  border-radius: 5px;
+  padding: 5px;
+  box-sizing: border-box;
+  background: transparent;
+  color: #fff;
+}
+
+.terminal-icon::before {
+  content: ">_";
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 40px;
+  text-align: center;
+  display: block;
+}
+
+
+
+.terminal-icon.show {
+  display: block; /* Show the icon when needed */
+}
+
 #terminal p {
   font-size: 20px; /* Set the desired font size */
 }

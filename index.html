@@ -7,16 +7,15 @@
     <script src="terminal.js" defer></script>
 </head>
 <body>
-
+<div class="terminal-icon hidden"></div>
 <div class="terminal-window">
     <header>
         <div class="button red"></div>
-        <div class="button yellow" onclick="minimizeTerminal()"></div>
-        <div class="button green" onclick="toggleFullscreen()"></div>
-
+        <div class="button yellow"></div>
+        <div class="button green"></div>
     </header>
     <div id="terminal">
-        <p><span class="purple">[ツ]</span> - Welcome to personal CLI. Type help to get started.</p>
+        <p><span class="purple">[ツ]</span> - Welcome to my personal CLI. Type help to get started.</p>
         <p class="hidden">
             <span class="prompt">
                 <span id="currentPath" class="root">root/</span> <!-- Updated here -->
