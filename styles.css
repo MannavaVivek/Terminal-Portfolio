@@ -5,8 +5,9 @@ body {
 
 .terminal-window {
   text-align: left;
-  width: 800px; 
-  height: 480px; 
+  width: 50%; /* Terminal takes up 50% of the width */
+  height: 50vh; /* Terminal takes up 40% of the viewport height */
+  max-height: 70vh;
   border-radius: 10px;
   margin: auto;
   position: relative;
