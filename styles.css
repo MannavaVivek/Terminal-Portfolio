@@ -26,6 +26,7 @@ body {
 .terminal-window.fullscreen {
   width: 95vw;
   height: 95vh;
+  max-height: 100vh;
   top: 0;
   left: 0;
 }
