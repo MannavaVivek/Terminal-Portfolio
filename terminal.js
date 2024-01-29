@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }else if (commandName === 'help') {
             output =   `<span class="green">ls</span> - list directory contents<br>
                         <span class="green">cd</span> - change the working directory<br>
-                        <span class="green">cat</span> - concatenate files and print on the standard output<br>
+                        <span class="green">cat</span> - Print file output on the standard output<br>
                         <span class="green">clear</span> - clear the terminal screen<br>
                         <span class="green">help</span> - display help info<br>
                         <span class="green">pwd</span> - print name of current/working directory<br>
